@@ -16,7 +16,7 @@ type PromptTypeToValue<Choices extends string[] | undefined = undefined> = {
     list: Choices extends string[] ? Choices[number] : string;
     rawlist: Choices extends string[] ? Choices[number] : string;
     expand: Choices extends string[] ? Choices[number] : string;
-    checkbox: string[];
+    checkbox: Choices extends string[] ? Choices[number][] : string[];
     password: string;
     editor: string;
 };

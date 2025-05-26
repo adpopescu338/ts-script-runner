@@ -3,6 +3,7 @@ import fs from 'fs';
 import { getOrPromptArg } from '../get-arg';
 import { getFunctionDescription } from '../function-description';
 import { memoize } from './memoize';
+import { pathToFileURL } from 'url';
 
 export const FUNCTION_DESCRIPTION_SEPARATOR = ' - ';
 
@@ -24,7 +25,8 @@ type ExportedFunction = {
  * Will also work with a barrel file that re-exports the functions from other files
  */
 export const getFileExportedFunctions = memoize(async (filePath: string) => {
-    let fileContent = await import(filePath);
+    const fileUrl = pathToFileURL(filePath).href;
+    let fileContent = await import(fileUrl);
 
     if (
         Object.keys(fileContent).length === 2 &&
@@ -38,10 +40,6 @@ export const getFileExportedFunctions = memoize(async (filePath: string) => {
     const allExports = Object.entries(fileContent);
 
     const formattedExports = allExports.map(([exportName, exportValue]) => {
-        // console.group("getFileExportedFunctions");
-        // console.log("exportName: ", exportName);
-        // console.log("exportValue: ", exportValue);
-        // console.groupEnd();
         return {
             name: exportName,
             value: exportValue,
