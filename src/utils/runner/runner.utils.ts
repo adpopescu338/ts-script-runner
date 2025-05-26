@@ -4,20 +4,9 @@ import { getOrPromptArg } from '../get-arg';
 import { getFunctionDescription } from '../function-description';
 import { memoize } from './memoize';
 import { pathToFileURL } from 'url';
+import { ExportedFunction, ScriptType } from './types';
 
 export const FUNCTION_DESCRIPTION_SEPARATOR = ' - ';
-
-
-export enum ScriptType {
-    Typescript = 'typescript',
-    Bash = 'bash',
-}
-
-type ExportedFunction = {
-    name: string;
-    value: Function;
-    description: string | undefined;
-};
 
 /**
  * Returns an array of objects with the name and value of all exported functions from a file
@@ -58,8 +47,7 @@ export const getFileExportedFunctions = memoize(async (filePath: string) => {
  * Returns the names of all ts scripts in the ts-scripts folder
  * If the script is a directory, it will check if it has an index.ts file with any exported functions
  */
-const getTsScripts = async (scriptsPath:string) => {
-
+const getTsScripts = async (scriptsPath: string) => {
     const dirContent = fs.readdirSync(scriptsPath);
 
     const validDirContent: string[] = [];
@@ -102,7 +90,7 @@ const getTsScripts = async (scriptsPath:string) => {
     return validDirContent;
 };
 
-const getBashScripts = (scriptsPath:string) => {
+const getBashScripts = (scriptsPath: string) => {
     const scripts = fs.readdirSync(scriptsPath);
 
     const validDirContent: string[] = [];
@@ -114,19 +102,18 @@ const getBashScripts = (scriptsPath:string) => {
     return validDirContent;
 };
 
-export const getScript = async (tsScriptsFolder:string | undefined, bashScriptsFolder:string | undefined) => {
+export const getScript = async (tsScriptsFolder: string | undefined, bashScriptsFolder: string | undefined) => {
     let scriptType: ScriptType;
 
-    if(tsScriptsFolder && !bashScriptsFolder) {
-        scriptType = ScriptType.Typescript; 
-    } else if(bashScriptsFolder && !tsScriptsFolder) {
+    if (tsScriptsFolder && !bashScriptsFolder) {
+        scriptType = ScriptType.Typescript;
+    } else if (bashScriptsFolder && !tsScriptsFolder) {
         scriptType = ScriptType.Bash;
     } else if (!tsScriptsFolder && !bashScriptsFolder) {
         throw new Error('No scripts folder provided');
-    }
-    else {
+    } else {
         // ask what type of script to run, either ts or sh file
-       scriptType = await getOrPromptArg({
+        scriptType = await getOrPromptArg({
             flag: '--script-type',
             description: 'What type of script to run?',
             type: 'list',
@@ -134,11 +121,10 @@ export const getScript = async (tsScriptsFolder:string | undefined, bashScriptsF
         });
     }
 
-
     const scriptsPath = (scriptType === ScriptType.Typescript ? tsScriptsFolder : bashScriptsFolder) as string;
 
-
-    const scripts = scriptType === ScriptType.Typescript ? await getTsScripts(scriptsPath) : getBashScripts(scriptsPath);
+    const scripts =
+        scriptType === ScriptType.Typescript ? await getTsScripts(scriptsPath) : getBashScripts(scriptsPath);
 
     if (scripts.length === 0) {
         console.error(`No ${scriptType} scripts found in ${scriptsPath}`);
@@ -160,7 +146,7 @@ export const getScript = async (tsScriptsFolder:string | undefined, bashScriptsF
     });
 
     // run the script
-    const scriptPath = path.join( scriptsPath, fileName);
+    const scriptPath = path.join(scriptsPath, fileName);
 
     return { scriptPath, scriptType };
 };

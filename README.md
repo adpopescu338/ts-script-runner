@@ -20,27 +20,42 @@ Add to your project:
 npm install ts-script-runner
 ```
 
-### 2. Run the Script Runner
+### 2. Ways to Run the Script Runner
 
-You can run the script runner in several ways:
+You can use **ts-script-runner** in several flexible ways:
 
-**With npx:**
-
-```sh
-npx ts-script-runner --ts-scripts-folder ./scripts
-```
-
-**With yarn:**
+#### **A. Run a TypeScript Script Directly**
 
 ```sh
-yarn ts-script-runner --ts-scripts-folder ./scripts
+yarn ts-script-runner my-script.ts
 ```
+Runs a TypeScript file directly.
 
-Or, you can specify an entry point directly:
+#### **B. Use a Custom Entrypoint**
 
 ```sh
-yarn ts-script-runner my-entry-point.ts
+yarn ts-script-runner src/scripts/index.ts
 ```
+Where `index.ts` is your own entrypoint that calls `run({...})` from `ts-script-runner` with custom options.
+
+#### **C. Pass Options Directly via CLI**
+
+You can pass options (matching the `Args` type) directly to the runner:
+
+```sh
+yarn ts-script-runner -o --tsScriptsFolder src/scripts
+```
+or
+```sh
+npx ts-script-runner --tsScriptsFolder src/scripts
+```
+
+#### **D. With npm**
+
+```sh
+npm run ts-script-runner -- --tsScriptsFolder src/scripts
+```
+(Assuming you add a script in your `package.json`.)
 
 - You will be prompted to select a script and, for TypeScript, a function to run.
 - If both TypeScript and Bash folders are provided, you can choose which type to run.
@@ -83,7 +98,7 @@ registerCleanup(() => {
 
 ## API
 
-- `run(options)`: Start the script runner (usually not called directly).
+- `run(options)`: Start the script runner (usually not called directly unless you want custom options).
 - `describeFunction(fn, description)`: Attach a description to a function.
 - `getOrPromptArg(options)`: Get an argument from CLI or prompt the user.
 - `registerCleanup(callback)`: Register a cleanup callback.
@@ -91,10 +106,11 @@ registerCleanup(() => {
 ## Example
 
 ```sh
-npx ts-script-runner --ts-scripts-folder ./scripts --bash-scripts-folder ./bash
+npx ts-script-runner --tsScriptsFolder ./scripts --bashScriptsFolder ./bash
 ```
 
 ---
 
-For more advanced usage, see the examples in the `scripts` folder.
+**See more usage examples at:**  
+[https://github.com/adpopescu338/ts-script-runner-examples](https://github.com/adpopescu338/ts-script-runner-examples)
 

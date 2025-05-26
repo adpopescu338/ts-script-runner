@@ -1,8 +1,3 @@
-declare enum ScriptType {
-    Typescript = "typescript",
-    Bash = "bash"
-}
-
 type Args = {
     /**
      * Where to place the bash script context
@@ -38,6 +33,11 @@ type Args = {
      */
     commandLogPrefix?: string | null;
 };
+declare enum ScriptType {
+    Typescript = "typescript",
+    Bash = "bash"
+}
+
 declare const run: (args: Args) => Promise<never>;
 
 declare const describeFunction: (fn: Function, description: string) => void;
@@ -124,4 +124,4 @@ declare function getOrPromptArg<Type extends keyof PromptTypeToValue | undefined
 
 declare const registerCleanup: (callback: () => void | Promise<void>) => void;
 
-export { type Args, describeFunction, getOrPromptArg, registerCleanup, run };
+export { type Args, ScriptType, describeFunction, getOrPromptArg, registerCleanup, run };

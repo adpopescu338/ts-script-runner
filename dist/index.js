@@ -24216,7 +24216,7 @@ var require_commander = __commonJS({
   }
 });
 
-// src/runner.ts
+// src/utils/runner/runner.ts
 import { execSync } from "child_process";
 
 // node_modules/@inquirer/core/dist/esm/lib/key.js
@@ -26757,12 +26757,16 @@ var memoize = (fn) => {
 
 // src/utils/runner/runner.utils.ts
 import { pathToFileURL } from "url";
-var FUNCTION_DESCRIPTION_SEPARATOR = " - ";
+
+// src/utils/runner/types.ts
 var ScriptType = /* @__PURE__ */ ((ScriptType2) => {
   ScriptType2["Typescript"] = "typescript";
   ScriptType2["Bash"] = "bash";
   return ScriptType2;
 })(ScriptType || {});
+
+// src/utils/runner/runner.utils.ts
+var FUNCTION_DESCRIPTION_SEPARATOR = " - ";
 var getFileExportedFunctions = memoize(async (filePath) => {
   const fileUrl = pathToFileURL(filePath).href;
   let fileContent = await import(fileUrl);
@@ -26876,7 +26880,7 @@ var registerCleanup = (callback) => {
   globalCleaner.registerCleanup(callback);
 };
 
-// src/runner.ts
+// src/utils/runner/runner.ts
 var scriptExecutionStartTime = /* @__PURE__ */ new Date();
 var main = async (args) => {
   const { scriptPath, scriptType } = await getScript(args.tsScriptsFolder, args.bashScriptsFolder);
@@ -26884,7 +26888,6 @@ var main = async (args) => {
 
 Running ${scriptPath} ...
 `);
-  scriptExecutionStartTime = /* @__PURE__ */ new Date();
   if (scriptType === "bash" /* Bash */) {
     const extensionIfMissing = scriptPath.endsWith(".sh") ? "" : ".sh";
     const scriptPathWithExtension = "bash " + scriptPath + extensionIfMissing;
@@ -26895,6 +26898,7 @@ Running ${scriptPath} ...
       });
     });
     const forwardedArgs = argv.map((arg) => `"${arg}"`).join(" ");
+    scriptExecutionStartTime = /* @__PURE__ */ new Date();
     execSync(`${scriptPathWithExtension} ${forwardedArgs}`, {
       stdio: "inherit",
       cwd: args.bashCwdLocation || process.cwd()
@@ -26935,6 +26939,7 @@ Running ${scriptPath} ...
 
 Running ${functionToRunName} ...
 `);
+  scriptExecutionStartTime = /* @__PURE__ */ new Date();
   await functionToRun();
 };
 var logArgs = (prefix) => {
@@ -26979,6 +26984,7 @@ var run = async (args) => {
   });
 };
 export {
+  ScriptType,
   describeFunction,
   getOrPromptArg,
   registerCleanup,

@@ -24219,6 +24219,7 @@ var require_commander = __commonJS({
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  ScriptType: () => ScriptType,
   describeFunction: () => describeFunction,
   getOrPromptArg: () => getOrPromptArg,
   registerCleanup: () => registerCleanup,
@@ -24226,7 +24227,7 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
-// src/runner.ts
+// src/utils/runner/runner.ts
 var import_child_process = require("child_process");
 
 // node_modules/@inquirer/core/dist/esm/lib/key.js
@@ -26767,12 +26768,16 @@ var memoize = (fn) => {
 
 // src/utils/runner/runner.utils.ts
 var import_url = require("url");
-var FUNCTION_DESCRIPTION_SEPARATOR = " - ";
+
+// src/utils/runner/types.ts
 var ScriptType = /* @__PURE__ */ ((ScriptType2) => {
   ScriptType2["Typescript"] = "typescript";
   ScriptType2["Bash"] = "bash";
   return ScriptType2;
 })(ScriptType || {});
+
+// src/utils/runner/runner.utils.ts
+var FUNCTION_DESCRIPTION_SEPARATOR = " - ";
 var getFileExportedFunctions = memoize(async (filePath) => {
   const fileUrl = (0, import_url.pathToFileURL)(filePath).href;
   let fileContent = await import(fileUrl);
@@ -26886,7 +26891,7 @@ var registerCleanup = (callback) => {
   globalCleaner.registerCleanup(callback);
 };
 
-// src/runner.ts
+// src/utils/runner/runner.ts
 var scriptExecutionStartTime = /* @__PURE__ */ new Date();
 var main = async (args) => {
   const { scriptPath, scriptType } = await getScript(args.tsScriptsFolder, args.bashScriptsFolder);
@@ -26894,7 +26899,6 @@ var main = async (args) => {
 
 Running ${scriptPath} ...
 `);
-  scriptExecutionStartTime = /* @__PURE__ */ new Date();
   if (scriptType === "bash" /* Bash */) {
     const extensionIfMissing = scriptPath.endsWith(".sh") ? "" : ".sh";
     const scriptPathWithExtension = "bash " + scriptPath + extensionIfMissing;
@@ -26905,6 +26909,7 @@ Running ${scriptPath} ...
       });
     });
     const forwardedArgs = argv.map((arg) => `"${arg}"`).join(" ");
+    scriptExecutionStartTime = /* @__PURE__ */ new Date();
     (0, import_child_process.execSync)(`${scriptPathWithExtension} ${forwardedArgs}`, {
       stdio: "inherit",
       cwd: args.bashCwdLocation || process.cwd()
@@ -26945,6 +26950,7 @@ Running ${scriptPath} ...
 
 Running ${functionToRunName} ...
 `);
+  scriptExecutionStartTime = /* @__PURE__ */ new Date();
   await functionToRun();
 };
 var logArgs = (prefix) => {
@@ -26990,6 +26996,7 @@ var run = async (args) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  ScriptType,
   describeFunction,
   getOrPromptArg,
   registerCleanup,

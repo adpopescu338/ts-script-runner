@@ -1,49 +1,9 @@
 import { execSync } from 'child_process';
-import { getOrPromptArg, getAllArgs } from './utils/get-arg';
-import {
-    getScript,
-    getFileExportedFunctions,
-    ScriptType,
-    FUNCTION_DESCRIPTION_SEPARATOR,
-} from './utils/runner/runner.utils';
-import { globalCleaner } from './utils/cleanup';
-
-export type Args = {
-    /**
-     * Where to place the bash script context
-     * @default process.cwd()
-     * @example /Users/username/projects/my-project
-     */
-    bashCwdLocation?: string;
-    defaultScriptType?: ScriptType;
-    /**
-     * Whether to log all args passed to the script
-     * @default true
-     */
-    logAllArgs?: boolean;
-    /**
-     * Whether to log the script execution time
-     * @default true
-     */
-    logExecutionTime?: boolean;
-    /**
-     * The path to the folder containing the bash scripts
-     * If not provided, no bash scripts will be found
-     */
-    bashScriptsFolder?: string;
-    /**
-     * The path to the folder containing the ts scripts
-     * If not provided, no ts scripts will be found
-     */
-    tsScriptsFolder?: string;
-
-    /**
-     * By default and unless logAllArgs is set to false, the script will log all args passed to it with the `npm run ts-script-runner -- ` prefix
-     * If you want to change the prefix of the command, you can use this option
-     * @default 'npm run ts-script-runner -- '
-     */
-    commandLogPrefix?: string | null;
-};
+import { getOrPromptArg, getAllArgs } from '../get-arg';
+import { getScript, getFileExportedFunctions, FUNCTION_DESCRIPTION_SEPARATOR } from './runner.utils';
+import { globalCleaner } from '../cleanup';
+import { Args, ScriptType } from './types';
+import { resolveArgsFromArgv } from './resolve-args';
 
 let scriptExecutionStartTime = new Date();
 
@@ -51,9 +11,6 @@ const main = async (args: Args) => {
     const { scriptPath, scriptType } = await getScript(args.tsScriptsFolder, args.bashScriptsFolder);
 
     console.log(`\n\nRunning ${scriptPath} ...\n`);
-
-    // override this because we don't want to account for the time it takes to identify the script
-    scriptExecutionStartTime = new Date();
 
     if (scriptType === ScriptType.Bash) {
         const extensionIfMissing = scriptPath.endsWith('.sh') ? '' : '.sh';
@@ -68,6 +25,9 @@ const main = async (args: Args) => {
         });
 
         const forwardedArgs = argv.map((arg) => `"${arg}"`).join(' ');
+
+        // override this because we don't want to account for the time it takes to identify the script
+        scriptExecutionStartTime = new Date();
 
         // run the bash script and pipe output to current process
         execSync(`${scriptPathWithExtension} ${forwardedArgs}`, {
@@ -116,6 +76,9 @@ const main = async (args: Args) => {
     }
 
     console.log(`\n\nRunning ${functionToRunName} ...\n`);
+
+    // override this because we don't want to account for the time it takes to identify the script
+    scriptExecutionStartTime = new Date();
 
     await functionToRun();
 };
