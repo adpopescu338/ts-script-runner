@@ -3,24 +3,30 @@
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { resolveArgsFromArgv } from './utils/runner/resolve-args';
-import { run } from './utils/runner/runner';
+import { resolveArgsFromArgv } from './utils/runner/resolve-args.js';
 
 const argv = process.argv.slice(2);
 
-const rawTargetFilePath = argv.shift();
+const rawTargetFilePath = argv[0];
 
-if (!rawTargetFilePath) {
-    console.error('No file name or options provided');
-    process.exit(1);
-}
+const actualProvidedFilePath = (() => {
+    if (rawTargetFilePath === '-o') {
+        return null;
+    }
 
-// Normalize and resolve the path for cross-platform compatibility
-const targetFilePath = path.resolve(path.normalize(rawTargetFilePath));
+    if (!rawTargetFilePath) {
+        return null;
+    }
+
+    // Normalize and resolve the path for cross-platform compatibility
+    const targetFilePath = path.resolve(path.normalize(rawTargetFilePath));
+
+    if (fs.existsSync(targetFilePath)) return targetFilePath;
+})();
 
 // Optionally check if the file exists before spawning
-if (fs.existsSync(targetFilePath)) {
-    const child = spawn('npx', ['tsx', targetFilePath, ...argv], {
+if (actualProvidedFilePath) {
+    const child = spawn('npx', ['tsx', actualProvidedFilePath, ...argv.slice(1)], {
         stdio: 'inherit',
         shell: true, // Windows compatibility
     });
@@ -32,9 +38,36 @@ if (fs.existsSync(targetFilePath)) {
     const options = resolveArgsFromArgv();
 
     if (!options) {
-        console.error(`File not found: ${targetFilePath}`);
+        console.error(`File or script not provided. Please specify a file or script to run.`);
         process.exit(1);
     }
 
-    run(options);
+    // read the content of './index.js' file;
+    // append `run(options)` to the end of the content
+    // run with `npx tsx` command
+    const scriptPath = path.join(import.meta.dirname, 'index.js');
+    const scriptContent = fs.readFileSync(scriptPath, 'utf-8');
+    const modifiedScriptContent = `${scriptContent}\nrun(${JSON.stringify(options)});`;
+    const tempScriptPath = path.join(import.meta.dirname, 'tempRunner.js');
+    fs.writeFileSync(tempScriptPath, modifiedScriptContent);
+    try {
+        const child = spawn('npx', ['tsx', tempScriptPath], {
+            stdio: 'inherit',
+            shell: true, // Windows compatibility
+        });
+
+        child.on('exit', (code) => {
+            fs.unlinkSync(tempScriptPath); // Clean up the temporary script
+            process.exit(code ?? 0);
+        });
+    } catch (error) {
+        console.error(`Error running the script: ${error}`);
+        fs.unlinkSync(tempScriptPath); // Clean up the temporary script
+        process.exit(1);
+    }
+} else {
+    console.error(`File or script not provided. Please specify a file or script to run.`);
+    console.log(`Usage: ts-script-runner <file.ts> [args]`);
+    console.log(`Or: ts-script-runner -o [options]`);
+    process.exit(1);
 }

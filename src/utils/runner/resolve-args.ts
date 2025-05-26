@@ -10,7 +10,7 @@ function parseBooleanFlag(value: string | undefined, flagName: string): boolean 
 
 export function resolveArgsFromArgv(): Args | undefined {
     const argv = process.argv.slice(2);
-    const program = new Command();
+    const program = new Command().allowUnknownOption(true).allowExcessArguments(true);
 
     program
         .option('--bashCwdLocation <path>', 'Where to place the bash script context')
@@ -19,7 +19,7 @@ export function resolveArgsFromArgv(): Args | undefined {
         .option('--logExecutionTime <bool>', 'Whether to log the script execution time (1/0/true/false)')
         .option('--bashScriptsFolder <path>', 'Path to the folder containing bash scripts')
         .option('--tsScriptsFolder <path>', 'Path to the folder containing ts scripts')
-        .option('--commandLogPrefix <prefix>', 'Prefix for command log', 'npm run ts-script-runner -- ');
+        .option('--commandLogPrefix <prefix>', 'Prefix for command log');
 
     program.parse(argv, { from: 'user' });
     const opts = program.opts();

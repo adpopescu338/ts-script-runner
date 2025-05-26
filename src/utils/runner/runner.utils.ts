@@ -1,10 +1,10 @@
 import path from 'path';
 import fs from 'fs';
-import { getOrPromptArg } from '../get-arg';
-import { getFunctionDescription } from '../function-description';
-import { memoize } from './memoize';
+import { getOrPromptArg } from '../get-arg.js';
+import { getFunctionDescription } from '../function-description.js';
+import { memoize } from './memoize.js';
 import { pathToFileURL } from 'url';
-import { ExportedFunction, ScriptType } from './types';
+import { ExportedFunction, ScriptType } from './types.js';
 
 export const FUNCTION_DESCRIPTION_SEPARATOR = ' - ';
 

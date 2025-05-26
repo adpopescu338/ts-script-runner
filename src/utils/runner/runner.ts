@@ -1,9 +1,8 @@
 import { execSync } from 'child_process';
-import { getOrPromptArg, getAllArgs } from '../get-arg';
-import { getScript, getFileExportedFunctions, FUNCTION_DESCRIPTION_SEPARATOR } from './runner.utils';
-import { globalCleaner } from '../cleanup';
-import { Args, ScriptType } from './types';
-import { resolveArgsFromArgv } from './resolve-args';
+import { getOrPromptArg, getAllArgs } from '../get-arg.js';
+import { getScript, getFileExportedFunctions, FUNCTION_DESCRIPTION_SEPARATOR } from './runner.utils.js';
+import { globalCleaner } from '../cleanup.js';
+import { Args, ScriptType } from './types.js';
 
 let scriptExecutionStartTime = new Date();
 

@@ -1,6 +1,6 @@
 {
     "name": "ts-script-runner",
-    "version": "1.1.0",
+    "version": "1.1.8",
     "description": "A project to facilitate and standardize the way local miscellaneous scripts are executed",
     "main": "dist/index.js",
     "bin": "dist/bin.js",
@@ -13,17 +13,19 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsup ./src/index.ts --format cjs,esm --dts --out-dir ./dist && tsup ./src/bin.ts --format cjs,esm --dts --out-dir ./dist"
+        "build": "tsup"
     },
     "author": {
         "name": "Alexandru Popescu",
         "email": "adpopescu338@yahoo.com"
     },
     "license": "MIT",
+    "dependencies": {
+        "commander": "^14.0.0",
+        "inquirer": "^12.6.3"
+    },
     "devDependencies": {
         "@types/node": "^22.13.5",
-        "commander": "^14.0.0",
-        "inquirer": "^12.6.1",
         "tsup": "^8.5.0",
         "typescript": "^5.8.3"
     },
